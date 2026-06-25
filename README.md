@@ -30,11 +30,6 @@ gpx-geojson-api/
 - Docker and Docker Compose installed
 - (Optional) ArcGIS feature layer URL for integration
 
-### API Calls
-    1. Convert GPX to GeoJson - POST /convert
-    2. Convert and Append to Feature Layer - POST /convert-and-append
-    3. Health Check - POST /health
-
 ### Installation & Running
 
 ```bash
@@ -56,6 +51,14 @@ http://localhost:8000/docs
 ```
 
 ## API Endpoints
+
+**Jump to Section:**
+1. [Convert GPX to GeoJSON Only](#1-convert-gpx-to-geojson-only)
+2. [Convert and Append to Feature Layer](#2-convert-and-append-to-feature-layer)
+3. [Health Check](#3-health-check)
+4. [Conversion History](#4-conversion-history)
+
+---
 
 ### 1. Convert GPX to GeoJSON Only
 
@@ -84,6 +87,8 @@ curl -X POST -F "file=@myroute.gpx" http://localhost:8000/convert
 ### 2. Convert and Append to Feature Layer
 
 **Endpoint:** `POST /convert-and-append`
+
+Convert a GPX file and immediately append to your feature layer.
 
 Convert GPX to GeoJSON and immediately append to your feature layer.
 
@@ -129,6 +134,8 @@ with open("myroute.gpx", "rb") as f:
 
 Check if the API is running.
 
+Check if the API is running.
+
 ```bash
 curl http://localhost:8000/health
 ```
@@ -136,6 +143,8 @@ curl http://localhost:8000/health
 ### 4. Conversion History
 
 **Endpoint:** `GET /conversion-history`
+
+View previously converted files (useful for debugging).
 
 View previously converted files (useful for debugging).
 
