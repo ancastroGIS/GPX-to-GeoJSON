@@ -30,6 +30,11 @@ gpx-geojson-api/
 - Docker and Docker Compose installed
 - (Optional) ArcGIS feature layer URL for integration
 
+### API Calls
+    1. Convert GPX to GeoJson - POST /convert
+    2. Convert and Append to Feature Layer - POST /convert-and-append
+    3. Health Check - POST /health
+
 ### Installation & Running
 
 ```bash
