@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  gpx-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./app.py:/app/app.py  # Live reload during development
+    restart: unless-stopped
