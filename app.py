@@ -140,37 +140,61 @@ async def convert_and_append_to_feature_layer(
         
         features = []
         
-        # Parse tracks
+        # Parse tracks — each GPS point becomes a Point feature (layer is esriGeometryPoint)
         for track in gpx.tracks:
             for segment in track.segments:
-                coordinates = [[point.longitude, point.latitude] for point in segment.points]
-                if len(coordinates) >= 2:
+                for pt in segment.points:
+                    properties = {
+                        "name": track.name or "Track",
+                        "descript": "",
+                        "type": "track",
+                        "comment": "",
+                        "symbol": "",
+                        "datetimes": str(pt.time) if pt.time else "",
+                        "feature_type": "track",
+                    }
+                    if pt.elevation is not None:
+                        properties["elevation"] = float(pt.elevation)
+                    if pt.time:
+                        try:
+                            properties["datetime"] = pt.time.isoformat()
+                        except Exception:
+                            pass
+                    coords = [pt.longitude, pt.latitude]
+                    if pt.elevation is not None:
+                        coords.append(float(pt.elevation))
                     features.append({
                         "type": "Feature",
-                        "properties": {
-                            "name": track.name or "Track",
-                            "feature_type": "track"
-                        },
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": coordinates
-                        }
+                        "properties": properties,
+                        "geometry": {"type": "Point", "coordinates": coords},
                     })
-        
-        # Parse routes
+
+        # Parse routes — same point-per-vertex approach
         for route in gpx.routes:
-            coordinates = [[point.longitude, point.latitude] for point in route.points]
-            if len(coordinates) >= 2:
+            for pt in route.points:
+                properties = {
+                    "name": route.name or "Route",
+                    "descript": "",
+                    "type": "route",
+                    "comment": "",
+                    "symbol": "",
+                    "datetimes": str(pt.time) if pt.time else "",
+                    "feature_type": "route",
+                }
+                if pt.elevation is not None:
+                    properties["elevation"] = float(pt.elevation)
+                if pt.time:
+                    try:
+                        properties["datetime"] = pt.time.isoformat()
+                    except Exception:
+                        pass
+                coords = [pt.longitude, pt.latitude]
+                if pt.elevation is not None:
+                    coords.append(float(pt.elevation))
                 features.append({
                     "type": "Feature",
-                    "properties": {
-                        "name": route.name or "Route",
-                        "feature_type": "route"
-                    },
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": coordinates
-                    }
+                    "properties": properties,
+                    "geometry": {"type": "Point", "coordinates": coords},
                 })
         
         # Parse waypoints
@@ -326,11 +350,14 @@ def convert_geometry_to_arcgis(geometry: Dict) -> Dict:
     spatial_ref = {"wkid": 4326}
     
     if geom_type == "Point":
-        return {
+        result = {
             "x": coordinates[0],
             "y": coordinates[1],
-            "spatialReference": spatial_ref
+            "spatialReference": spatial_ref,
         }
+        if len(coordinates) >= 3:
+            result["z"] = coordinates[2]
+        return result
     
     elif geom_type == "LineString":
         return {

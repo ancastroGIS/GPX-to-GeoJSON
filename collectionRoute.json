@@ -1,0 +1,363 @@
+﻿{
+    "isCoGoEnabled":  false,
+    "extent":  {
+                   "ymin":  1302338.824146986,
+                   "zmin":  46.47239999999874,
+                   "xmin":  4225881.058727041,
+                   "ymax":  1305730.8238188922,
+                   "zmax":  51.96799999999348,
+                   "xmax":  4226595.491469815,
+                   "spatialReference":  {
+                                            "falseM":  -100000,
+                                            "xyTolerance":  0.0032808398950131233,
+                                            "mUnits":  10000,
+                                            "zUnits":  10000,
+                                            "latestWkid":  6561,
+                                            "zTolerance":  0.001,
+                                            "wkid":  103138,
+                                            "xyUnits":  3048,
+                                            "mTolerance":  0.001,
+                                            "falseX":  -115243200,
+                                            "falseY":  -97276400,
+                                            "falseZ":  -100000
+                                        }
+               },
+    "isDataBranchVersioned":  false,
+    "supportsApplyEditsWithGlobalIds":  false,
+    "maxRecordCount":  2000,
+    "infoInEstimates":  [
+                            "extent",
+                            "count"
+                        ],
+    "datesInUnknownTimezone":  false,
+    "type":  "Feature Layer",
+    "onlyAllowTrueCurveUpdatesByTrueCurveClients":  true,
+    "supportsAttachmentsByUploadId":  true,
+    "editingInfo":  {
+                        "lastEditDate":  1782511636047
+                    },
+    "relationships":  [
+
+                      ],
+    "supportsAttachmentsResizing":  true,
+    "cimVersion":  "3.4.0",
+    "isDataArchived":  false,
+    "id":  3,
+    "supportsSubtypeEditing":  true,
+    "supportsStatistics":  true,
+    "supportedExportFormats":  "sqlite,filegdb,shapefile,csv,geojson",
+    "standardMaxRecordCount":  16000,
+    "isDataVersioned":  false,
+    "templates":  [
+                      {
+                          "name":  "CollectionRoutes",
+                          "description":  "",
+                          "drawingTool":  "esriFeatureEditToolPoint",
+                          "prototype":  {
+                                            "attributes":  {
+                                                               "elevation":  null,
+                                                               "symbol":  null,
+                                                               "datetime":  null,
+                                                               "datetimes":  null,
+                                                               "name":  null,
+                                                               "comment":  null,
+                                                               "descript":  null,
+                                                               "type":  null
+                                                           }
+                                        }
+                      }
+                  ],
+    "supportsAdvancedQueries":  true,
+    "parentLayer":  null,
+    "currentVersion":  11.4,
+    "canScaleSymbols":  false,
+    "hasZ":  true,
+    "advancedEditingCapabilities":  {
+                                        "supportsAsyncApplyEdits":  true,
+                                        "supportsApplyEditsbyUploadID":  true,
+                                        "supportsReturnEditResults":  true,
+                                        "supportedSqlFormatsInCalculate":  [
+                                                                               "standard"
+                                                                           ],
+                                        "supportedApplyEditsUploadIDFormats":  "JSON,PBF"
+                                    },
+    "objectIdField":  "objectid",
+    "supportsQuantizationEditMode":  true,
+    "name":  "CollectionRoutes",
+    "allowTrueCurvesUpdates":  false,
+    "displayField":  "name",
+    "supportsCalculate":  true,
+    "fields":  [
+                   {
+                       "nullable":  false,
+                       "defaultValue":  null,
+                       "editable":  false,
+                       "length":  4,
+                       "type":  "esriFieldTypeOID",
+                       "modelName":  "objectid",
+                       "domain":  null,
+                       "name":  "objectid",
+                       "alias":  "OBJECTID"
+                   },
+                   {
+                       "modelName":  "name",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "name",
+                       "length":  255,
+                       "alias":  "Name",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "descript",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "descript",
+                       "length":  255,
+                       "alias":  "Descript",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "type",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "type",
+                       "length":  255,
+                       "alias":  "Type",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "comment",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "comment",
+                       "length":  255,
+                       "alias":  "Comment",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "symbol",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "symbol",
+                       "length":  255,
+                       "alias":  "Symbol",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "datetimes",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "datetimes",
+                       "length":  255,
+                       "alias":  "DateTimeS",
+                       "type":  "esriFieldTypeString"
+                   },
+                   {
+                       "modelName":  "elevation",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "name":  "elevation",
+                       "alias":  "Elevation",
+                       "type":  "esriFieldTypeDouble"
+                   },
+                   {
+                       "modelName":  "datetime",
+                       "nullable":  true,
+                       "editable":  true,
+                       "defaultValue":  null,
+                       "domain":  null,
+                       "precision":  1,
+                       "name":  "datetime",
+                       "length":  29,
+                       "alias":  "DateTime",
+                       "type":  "esriFieldTypeDate"
+                   }
+               ],
+    "maxRecordCountFactor":  1,
+    "dateFieldsTimeReference":  {
+                                    "timeZoneIANA":  "Etc/UTC",
+                                    "respectsDaylightSaving":  false,
+                                    "timeZone":  "UTC"
+                                },
+    "supportsFieldDescriptionProperty":  true,
+    "hasM":  false,
+    "allowGeometryUpdates":  true,
+    "useStandardizedQueries":  true,
+    "globalIdField":  null,
+    "description":  "",
+    "syncCanReturnChanges":  true,
+    "supportsAsyncDelete":  true,
+    "supportedSpatialRelationships":  [
+                                          "esriSpatialRelIntersects",
+                                          "esriSpatialRelContains",
+                                          "esriSpatialRelCrosses",
+                                          "esriSpatialRelEnvelopeIntersects",
+                                          "esriSpatialRelOverlaps",
+                                          "esriSpatialRelTouches",
+                                          "esriSpatialRelWithin"
+                                      ],
+    "supportsRollbackOnFailureParameter":  true,
+    "isDataReplicaTracked":  false,
+    "standardMaxRecordCountNoGeometry":  16000,
+    "supportsTruncate":  true,
+    "indexes":  [
+                    {
+                        "name":  "r881_sde_rowid_uk",
+                        "isUnique":  true,
+                        "description":  "",
+                        "fields":  "objectid",
+                        "isAscending":  true
+                    },
+                    {
+                        "name":  "a687_ix1",
+                        "isUnique":  false,
+                        "description":  "",
+                        "fields":  "shape",
+                        "isAscending":  true
+                    }
+                ],
+    "supportedAppendSourceFilterFormats":  "featureService",
+    "editFieldsInfo":  null,
+    "htmlPopupType":  "esriServerHTMLPopupTypeAsHTMLText",
+    "GUIDFormat":  "O",
+    "minScale":  0,
+    "hasAttachments":  false,
+    "queryBinsCapabilities":  {
+                                  "supportedStatisticTypes":  [
+                                                                  "count",
+                                                                  "sum",
+                                                                  "min",
+                                                                  "max",
+                                                                  "avg",
+                                                                  "stddev",
+                                                                  "var",
+                                                                  "percentile_cont",
+                                                                  "percentile_disc"
+                                                              ],
+                                  "supportsFixedIntervalBin":  true,
+                                  "supportsAutoIntervalBin":  true,
+                                  "supportsFixedBoundariesBin":  true,
+                                  "supportsDateBin":  true
+                              },
+    "advancedQueryCapabilities":  {
+                                      "supportsSqlExpression":  true,
+                                      "supportsQueryWithResultType":  true,
+                                      "supportsQueryRelatedPagination":  true,
+                                      "supportsQueryWithCacheHint":  false,
+                                      "supportsQueryWithDatumTransformation":  true,
+                                      "supportsCurrentUserQueries":  true,
+                                      "supportsQueryAttachmentsWithReturnUrl":  true,
+                                      "supportsDefaultSR":  true,
+                                      "supportsQueryDateBins":  false,
+                                      "supportsQueryWithLodSR":  true,
+                                      "supportsPaginationOnAggregatedQueries":  true,
+                                      "supportsPagination":  true,
+                                      "supportsMaxRecordCountFactor":  true,
+                                      "supportsStatistics":  true,
+                                      "supportsOrderBy":  true,
+                                      "supportsFullTextSearch":  true,
+                                      "supportsQueryWithDistance":  true,
+                                      "supportsLod":  true,
+                                      "supportsSpatialAggregationStatistics":  false,
+                                      "supportsCountDistinct":  true,
+                                      "supportsAdvancedQueryRelated":  true,
+                                      "supportsQueryAttachments":  true,
+                                      "supportsReturningQueryExtent":  true,
+                                      "supportsQueryAttachmentsCountOnly":  true,
+                                      "supportsOrderByOnlyOnLayerFields":  false,
+                                      "supportsOutFieldSqlExpression":  true,
+                                      "supportsTopFeaturesQuery":  true,
+                                      "supportsReturningGeometryEnvelope":  false,
+                                      "supportsDistinct":  true,
+                                      "supportsReturningGeometryCentroid":  false,
+                                      "supportsQueryAnalytic":  true,
+                                      "supportsPercentileStatistics":  true,
+                                      "supportsHavingClause":  true
+                                  },
+    "subtypeField":  "",
+    "supportsValidateSQL":  true,
+    "enableZDefaults":  true,
+    "serviceItemId":  "46f13f0de9434b88800db4c7c7c0d0b6",
+    "allowUpdateWithoutMValues":  true,
+    "supportsCoordinatesQuantization":  true,
+    "types":  [
+
+              ],
+    "capabilities":  "Query",
+    "maxScale":  0,
+    "supportsAppend":  true,
+    "supportsExceedsLimitStatistics":  true,
+    "defaultVisibility":  true,
+    "advancedQueryAnalyticCapabilities":  {
+                                              "supportsAsync":  true,
+                                              "supportsLinearRegression":  true,
+                                              "supportsPercentileAnalytic":  false
+                                          },
+    "hasMetadata":  true,
+    "supportedAppendFormats":  "csv,excel,featureCollection,featureService,geojson,jsonl,pbf,shapefile",
+    "tileMaxRecordCount":  4000,
+    "typeIdField":  "",
+    "supportsASyncCalculate":  true,
+    "supportsVCSProjection":  true,
+    "supportedQueryFormats":  "JSON, geoJSON, PBF",
+    "sqlParserVersion":  "PG_11.4.0",
+    "drawingInfo":  {
+                        "renderer":  {
+                                         "symbol":  {
+                                                        "outline":  {
+                                                                        "color":  [
+                                                                                      0,
+                                                                                      0,
+                                                                                      0,
+                                                                                      0
+                                                                                  ],
+                                                                        "width":  0
+                                                                    },
+                                                        "color":  [
+                                                                      168,
+                                                                      168,
+                                                                      0,
+                                                                      255
+                                                                  ],
+                                                        "size":  4,
+                                                        "yoffset":  0,
+                                                        "xoffset":  0,
+                                                        "angle":  0,
+                                                        "style":  "esriSMSCircle",
+                                                        "type":  "esriSMS"
+                                                    },
+                                         "type":  "simple"
+                                     },
+                        "scaleSymbols":  true,
+                        "transparency":  0,
+                        "labelingInfo":  null
+                    },
+    "geometryField":  {
+                          "sqlType":  "sqlTypeDistinct",
+                          "nullable":  true,
+                          "editable":  true,
+                          "name":  "shape",
+                          "typeName":  "st_point",
+                          "length":  2147483647,
+                          "type":  "esriFieldTypeGeometry"
+                      },
+    "copyrightText":  "",
+    "zDefault":  0,
+    "geometryType":  "esriGeometryPoint",
+    "supportsLayerOverrides":  true
+}
