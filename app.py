@@ -1,12 +1,21 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 import gpxpy
 import json
 import httpx
+from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
 
 app = FastAPI(title="GPX to GeoJSON API with Feature Layer Integration")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Store conversion results for reference
 conversion_history = {}
@@ -355,11 +364,17 @@ async def get_conversion_history():
     }
 
 
+@app.get("/ui", response_class=HTMLResponse)
+async def frontend():
+    return Path("static/index.html").read_text(encoding="utf-8")
+
+
 @app.get("/")
 async def root():
     return {
         "service": "GPX to GeoJSON API",
         "endpoints": {
+            "ui": "GET /ui - Web interface",
             "convert": "POST /convert - Convert GPX file to GeoJSON",
             "convert_and_append": "POST /convert-and-append - Convert and append to feature layer",
             "health": "GET /health - Health check",

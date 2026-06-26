@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPX to GeoJSON Converter</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #eef2f7;
+            color: #2d3748;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1a365d;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .health-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .health-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #a0aec0;
+            transition: background 0.3s;
+        }
+
+        .health-dot.healthy  { background: #48bb78; }
+        .health-dot.unhealthy { background: #fc8181; }
+
+        main {
+            max-width: 680px;
+            margin: 2.5rem auto;
+            padding: 0 1.25rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        /* ---- Mode tabs ---- */
+        .mode-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.7rem 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 9px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #718096;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .tab:hover:not(.active) {
+            border-color: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .tab.active {
+            border-color: #2b6cb0;
+            background: #ebf8ff;
+            color: #2b6cb0;
+        }
+
+        /* ---- Drop zone ---- */
+        .drop-zone {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-bottom: 1.5rem;
+            user-select: none;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: #2b6cb0;
+            background: #ebf8ff;
+        }
+
+        .drop-zone.has-file {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .drop-zone-icon {
+            font-size: 2.25rem;
+            line-height: 1;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .drop-zone .hint {
+            color: #718096;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .drop-zone .hint strong { color: #4a5568; }
+
+        .drop-zone .filename {
+            display: block;
+            font-weight: 600;
+            color: #276749;
+            font-size: 0.9rem;
+            margin-top: 0.375rem;
+        }
+
+        /* ---- ArcGIS fields ---- */
+        .arcgis-fields {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .arcgis-fields.visible { display: flex; }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #4a5568;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        label .optional {
+            font-weight: 400;
+            color: #a0aec0;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            padding: 0.6rem 0.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 7px;
+            font-size: 0.875rem;
+            color: #2d3748;
+            background: white;
+            transition: border-color 0.15s;
+            outline: none;
+            width: 100%;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.12);
+        }
+
+        /* ---- Buttons ---- */
+        .btn-convert {
+            width: 100%;
+            padding: 0.875rem;
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 0.975rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-convert:hover:not(:disabled) { background: #2c5282; }
+        .btn-convert:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        /* ---- Result ---- */
+        .result {
+            display: none;
+            border-radius: 9px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .result.success {
+            background: #f0fff4;
+            border: 1.5px solid #9ae6b4;
+        }
+
+        .result.error {
+            background: #fff5f5;
+            border: 1.5px solid #feb2b2;
+        }
+
+        .result-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .result.success .result-title { color: #22543d; }
+        .result.error   .result-title { color: #9b2c2c; }
+
+        .result-body {
+            font-size: 0.875rem;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .result pre {
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.78rem;
+            overflow-x: auto;
+            margin-top: 0.75rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        /* ---- Spinner ---- */
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---- Footer links ---- */
+        .footer-links {
+            text-align: center;
+            font-size: 0.78rem;
+            color: #718096;
+            margin-top: 1.25rem;
+        }
+
+        .footer-links a {
+            color: #2b6cb0;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover { text-decoration: underline; }
+
+        /* ---- Hidden file input ---- */
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>GPX &#x2192; GeoJSON Converter</h1>
+    <div class="health-badge">
+        <div class="health-dot" id="healthDot"></div>
+        <span id="healthLabel">Checking&hellip;</span>
+    </div>
+</header>
+
+<main>
+    <div class="card">
+
+        <div class="mode-tabs">
+            <button class="tab active" id="tabDownload" onclick="setMode('download')">
+                Download GeoJSON
+            </button>
+            <button class="tab" id="tabAppend" onclick="setMode('append')">
+                Append to ArcGIS
+            </button>
+        </div>
+
+        <!-- Drop zone -->
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <span class="drop-zone-icon" id="dropIcon">&#128194;</span>
+            <span class="hint">
+                Drag &amp; drop a <strong>.gpx</strong> file here, or click to browse
+            </span>
+            <span class="filename" id="fileLabel"></span>
+        </div>
+        <input type="file" id="fileInput" accept=".gpx" onchange="onFileSelected(this)">
+
+        <!-- ArcGIS fields (append mode only) -->
+        <div class="arcgis-fields" id="arcgisFields">
+            <div class="field">
+                <label for="layerUrl">Feature Layer URL</label>
+                <input type="text" id="layerUrl"
+                    placeholder="https://services.arcgis.com/…/FeatureServer/0/addFeatures">
+            </div>
+            <div class="field">
+                <label for="token">API Token <span class="optional">(optional)</span></label>
+                <input type="password" id="token" placeholder="ArcGIS token">
+            </div>
+            <div class="field">
+                <label for="layerFilter">Feature Filter <span class="optional">(optional)</span></label>
+                <select id="layerFilter">
+                    <option value="">All features (tracks, routes, waypoints)</option>
+                    <option value="type=track">Tracks only</option>
+                    <option value="type=route">Routes only</option>
+                    <option value="type=waypoint">Waypoints only</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-convert" id="convertBtn" onclick="convert()" disabled>
+            Convert
+        </button>
+
+        <div class="result" id="result"></div>
+
+    </div>
+
+    <p class="footer-links">
+        <a href="/docs" target="_blank">API Docs (Swagger)</a>
+        &middot;
+        <a href="/health" target="_blank">/health</a>
+        &middot;
+        <a href="/conversion-history" target="_blank">/conversion-history</a>
+    </p>
+</main>
+
+<script>
+    'use strict';
+
+    let currentMode = 'download';
+    let selectedFile = null;
+
+    // --- Health check on load ---
+    (async function checkHealth() {
+        try {
+            const res = await fetch('/health');
+            const data = await res.json();
+            const dot = document.getElementById('healthDot');
+            const label = document.getElementById('healthLabel');
+            if (data.status === 'healthy') {
+                dot.className = 'health-dot healthy';
+                label.textContent = 'Service healthy';
+            } else {
+                dot.className = 'health-dot unhealthy';
+                label.textContent = 'Service degraded';
+            }
+        } catch {
+            document.getElementById('healthDot').className = 'health-dot unhealthy';
+            document.getElementById('healthLabel').textContent = 'Unreachable';
+        }
+    })();
+
+    // --- Mode switching ---
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('tabDownload').classList.toggle('active', mode === 'download');
+        document.getElementById('tabAppend').classList.toggle('active', mode === 'append');
+        document.getElementById('arcgisFields').classList.toggle('visible', mode === 'append');
+        clearResult();
+    }
+
+    // --- Drag and drop ---
+    const dropZone = document.getElementById('dropZone');
+
+    dropZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.toLowerCase().endsWith('.gpx')) {
+            setFile(file);
+        } else {
+            showResult('error', 'Invalid file type', 'Please drop a <strong>.gpx</strong> file.');
+        }
+    });
+
+    function onFileSelected(input) {
+        if (input.files[0]) setFile(input.files[0]);
+    }
+
+    function setFile(file) {
+        selectedFile = file;
+        document.getElementById('fileLabel').textContent = file.name;
+        dropZone.classList.add('has-file');
+        document.getElementById('dropIcon').textContent = '✅';
+        document.getElementById('convertBtn').disabled = false;
+        clearResult();
+    }
+
+    // --- Convert ---
+    async function convert() {
+        if (!selectedFile) return;
+
+        const btn = document.getElementById('convertBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Converting…';
+        clearResult();
+
+        try {
+            if (currentMode === 'download') {
+                await convertAndDownload();
+            } else {
+                await convertAndAppend();
+            }
+        } catch (err) {
+            showResult('error', 'Unexpected error', err.message || String(err));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Convert';
+        }
+    }
+
+    async function convertAndDownload() {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const res = await fetch('/convert', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (!res.ok || data.status !== 'success') {
+            showResult('error', 'Conversion failed', data.detail || JSON.stringify(data));
+            return;
+        }
+
+        const outputName = selectedFile.name.replace(/\.gpx$/i, '.geojson');
+        const blob = new Blob([JSON.stringify(data.geojson, null, 2)], { type: 'application/geo+json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = outputName;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showResult(
+            'success',
+            `Converted — ${data.feature_count} feature(s)`,
+            `<strong>${outputName}</strong> downloaded to your browser's download folder.`
+        );
+    }
+
+    async function convertAndAppend() {
+        const layerUrl = document.getElementById('layerUrl').value.trim();
+        const token    = document.getElementById('token').value.trim();
+        const filter   = document.getElementById('layerFilter').value;
+
+        if (!layerUrl) {
+            showResult('error', 'Missing URL', 'Please enter a Feature Layer URL before converting.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('feature_layer_url', layerUrl);
+        if (token)  formData.append('feature_layer_token', token);
+        if (filter) formData.append('layer_filter', filter);
+
+        const res  = await fetch('/convert-and-append', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (!res.ok) {
+            showResult('error', 'Request failed', data.detail || `<pre>${JSON.stringify(data, null, 2)}</pre>`);
+            return;
+        }
+
+        if (data.status === 'success') {
+            showResult(
+                'success',
+                `Appended — ${data.features_converted} feature(s)`,
+                `<pre>${JSON.stringify(data.append_result, null, 2)}</pre>`
+            );
+        } else {
+            showResult('error', 'Append failed', `<pre>${JSON.stringify(data, null, 2)}</pre>`);
+        }
+    }
+
+    // --- Result helpers ---
+    function showResult(type, title, body) {
+        const el = document.getElementById('result');
+        el.className = `result ${type}`;
+        el.style.display = 'block';
+        el.innerHTML = `<div class="result-title">${title}</div><div class="result-body">${body}</div>`;
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function clearResult() {
+        const el = document.getElementById('result');
+        el.style.display = 'none';
+        el.innerHTML = '';
+    }
+</script>
+
+</body>
+</html>
