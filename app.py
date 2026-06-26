@@ -279,29 +279,37 @@ def convert_geojson_to_arcgis(geojson_feature: Dict) -> Dict:
 def convert_geometry_to_arcgis(geometry: Dict) -> Dict:
     """
     Convert GeoJSON geometry to ArcGIS geometry format
+    Includes spatial reference for WGS84 (EPSG:4326)
     """
     geom_type = geometry.get("type")
     coordinates = geometry.get("coordinates", [])
     
+    # Standard spatial reference for WGS84 (lat/lon)
+    spatial_ref = {"wkid": 4326}
+    
     if geom_type == "Point":
         return {
             "x": coordinates[0],
-            "y": coordinates[1]
+            "y": coordinates[1],
+            "spatialReference": spatial_ref
         }
     
     elif geom_type == "LineString":
         return {
-            "paths": [coordinates]
+            "paths": [coordinates],
+            "spatialReference": spatial_ref
         }
     
     elif geom_type == "Polygon":
         return {
-            "rings": coordinates
+            "rings": coordinates,
+            "spatialReference": spatial_ref
         }
     
     elif geom_type == "MultiPoint":
         return {
-            "points": coordinates
+            "points": coordinates,
+            "spatialReference": spatial_ref
         }
     
     return geometry
