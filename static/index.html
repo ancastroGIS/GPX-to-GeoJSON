@@ -499,13 +499,14 @@
             return;
         }
 
+        const params = new URLSearchParams({ feature_layer_url: layerUrl });
+        if (token)  params.set('feature_layer_token', token);
+        if (filter) params.set('layer_filter', filter);
+
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('feature_layer_url', layerUrl);
-        if (token)  formData.append('feature_layer_token', token);
-        if (filter) formData.append('layer_filter', filter);
 
-        const res  = await fetch('/convert-and-append', { method: 'POST', body: formData });
+        const res  = await fetch(`/convert-and-append?${params.toString()}`, { method: 'POST', body: formData });
         const data = await res.json();
 
         if (!res.ok) {

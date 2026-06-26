@@ -117,7 +117,7 @@ async def convert_and_append_to_feature_layer(
     file: UploadFile = File(...),
     feature_layer_url: Optional[str] = None,
     feature_layer_token: Optional[str] = None,
-    layer_filter: Optional[str] = None
+    layer_filter: Optional[str] = None,
 ):
     """
     Convert GPX to GeoJSON and immediately append to a feature layer via REST API
