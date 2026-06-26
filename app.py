@@ -6,7 +6,7 @@ import json
 import httpx
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 app = FastAPI(title="GPX to GeoJSON API with Feature Layer Integration")
 
@@ -19,6 +19,18 @@ app.add_middleware(
 
 # Store conversion results for reference
 conversion_history = {}
+
+
+def _to_arcgis_ms(dt) -> Optional[int]:
+    """Convert a GPX datetime to ArcGIS epoch-milliseconds (esriFieldTypeDate)."""
+    if dt is None:
+        return None
+    try:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return None
 
 @app.post("/convert")
 async def convert_gpx_to_geojson(file: UploadFile = File(...)):
@@ -144,91 +156,66 @@ async def convert_and_append_to_feature_layer(
         for track in gpx.tracks:
             for segment in track.segments:
                 for pt in segment.points:
-                    properties = {
-                        "name": track.name or "Track",
-                        "descript": "",
-                        "type": "track",
-                        "comment": "",
-                        "symbol": "",
-                        "datetimes": str(pt.time) if pt.time else "",
-                        "feature_type": "track",
-                    }
-                    if pt.elevation is not None:
-                        properties["elevation"] = float(pt.elevation)
-                    if pt.time:
-                        try:
-                            properties["datetime"] = pt.time.isoformat()
-                        except Exception:
-                            pass
                     coords = [pt.longitude, pt.latitude]
                     if pt.elevation is not None:
                         coords.append(float(pt.elevation))
                     features.append({
                         "type": "Feature",
-                        "properties": properties,
+                        "properties": {
+                            "name": track.name or "Track",
+                            "descript": "",
+                            "type": "track",
+                            "comment": "",
+                            "symbol": "",
+                            "datetimes": pt.time.isoformat() if pt.time else None,
+                            "elevation": float(pt.elevation) if pt.elevation is not None else None,
+                            "datetime": _to_arcgis_ms(pt.time),
+                            "feature_type": "track",
+                        },
                         "geometry": {"type": "Point", "coordinates": coords},
                     })
 
         # Parse routes — same point-per-vertex approach
         for route in gpx.routes:
             for pt in route.points:
-                properties = {
-                    "name": route.name or "Route",
-                    "descript": "",
-                    "type": "route",
-                    "comment": "",
-                    "symbol": "",
-                    "datetimes": str(pt.time) if pt.time else "",
-                    "feature_type": "route",
-                }
-                if pt.elevation is not None:
-                    properties["elevation"] = float(pt.elevation)
-                if pt.time:
-                    try:
-                        properties["datetime"] = pt.time.isoformat()
-                    except Exception:
-                        pass
                 coords = [pt.longitude, pt.latitude]
                 if pt.elevation is not None:
                     coords.append(float(pt.elevation))
                 features.append({
                     "type": "Feature",
-                    "properties": properties,
+                    "properties": {
+                        "name": route.name or "Route",
+                        "descript": "",
+                        "type": "route",
+                        "comment": "",
+                        "symbol": "",
+                        "datetimes": pt.time.isoformat() if pt.time else None,
+                        "elevation": float(pt.elevation) if pt.elevation is not None else None,
+                        "datetime": _to_arcgis_ms(pt.time),
+                        "feature_type": "route",
+                    },
                     "geometry": {"type": "Point", "coordinates": coords},
                 })
-        
+
         # Parse waypoints
         for waypoint in gpx.waypoints:
-            # Extract waypoint data and map to CollectionRoutes schema
-            properties = {
-                "name": waypoint.name or "Waypoint",
-                "descript": waypoint.description if hasattr(waypoint, 'description') and waypoint.description else "",
-                "type": "waypoint",
-                "comment": "",
-                "symbol": waypoint.symbol if hasattr(waypoint, 'symbol') and waypoint.symbol else "",
-                "datetimes": str(waypoint.time) if hasattr(waypoint, 'time') and waypoint.time else "",
-                "feature_type": "waypoint"
-            }
-            
-            # Add elevation if present
-            if hasattr(waypoint, 'elevation') and waypoint.elevation is not None:
-                properties["elevation"] = float(waypoint.elevation)
-            
-            # Add datetime as ISO string if present
-            if hasattr(waypoint, 'time') and waypoint.time:
-                try:
-                    datetime_val = waypoint.time.isoformat() if hasattr(waypoint.time, 'isoformat') else str(waypoint.time)
-                    properties["datetime"] = datetime_val
-                except:
-                    pass
-            
             features.append({
                 "type": "Feature",
-                "properties": properties,
+                "properties": {
+                    "name": waypoint.name or "Waypoint",
+                    "descript": waypoint.description or "",
+                    "type": "waypoint",
+                    "comment": "",
+                    "symbol": waypoint.symbol or "",
+                    "datetimes": waypoint.time.isoformat() if waypoint.time else None,
+                    "elevation": float(waypoint.elevation) if waypoint.elevation is not None else None,
+                    "datetime": _to_arcgis_ms(waypoint.time),
+                    "feature_type": "waypoint",
+                },
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [waypoint.longitude, waypoint.latitude]
-                }
+                    "coordinates": [waypoint.longitude, waypoint.latitude],
+                },
             })
         
         # Apply filter if specified
