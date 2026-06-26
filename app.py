@@ -216,18 +216,29 @@ async def append_to_feature_layer(
     
     Args:
         features: List of GeoJSON features
-        feature_layer_url: Full REST endpoint (should end in /addFeatures)
+        feature_layer_url: Full REST endpoint (supports /addFeatures or /applyEdits)
         token: Optional authentication token
     
     Returns:
         Response from feature layer service
     """
     try:
-        # Prepare payload for ArcGIS REST API
-        payload = {
-            "features": json.dumps([convert_geojson_to_arcgis(f) for f in features]),
-            "f": "json"
-        }
+        # Convert GeoJSON features to ArcGIS format
+        arcgis_features = [convert_geojson_to_arcgis(f) for f in features]
+        
+        # Prepare payload - different format for applyEdits vs addFeatures
+        if "/applyEdits" in feature_layer_url:
+            # applyEdits expects adds/updates/deletes structure
+            payload = {
+                "adds": json.dumps(arcgis_features),
+                "f": "json"
+            }
+        else:
+            # addFeatures expects features array
+            payload = {
+                "features": json.dumps(arcgis_features),
+                "f": "json"
+            }
         
         if token:
             payload["token"] = token
