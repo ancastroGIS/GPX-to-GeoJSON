@@ -164,12 +164,32 @@ async def convert_and_append_to_feature_layer(
         
         # Parse waypoints
         for waypoint in gpx.waypoints:
+            # Extract waypoint data and map to CollectionRoutes schema
+            properties = {
+                "name": waypoint.name or "Waypoint",
+                "descript": waypoint.description if hasattr(waypoint, 'description') and waypoint.description else "",
+                "type": "waypoint",
+                "comment": "",
+                "symbol": waypoint.symbol if hasattr(waypoint, 'symbol') and waypoint.symbol else "",
+                "datetimes": str(waypoint.time) if hasattr(waypoint, 'time') and waypoint.time else "",
+                "feature_type": "waypoint"
+            }
+            
+            # Add elevation if present
+            if hasattr(waypoint, 'elevation') and waypoint.elevation is not None:
+                properties["elevation"] = float(waypoint.elevation)
+            
+            # Add datetime as ISO string if present
+            if hasattr(waypoint, 'time') and waypoint.time:
+                try:
+                    datetime_val = waypoint.time.isoformat() if hasattr(waypoint.time, 'isoformat') else str(waypoint.time)
+                    properties["datetime"] = datetime_val
+                except:
+                    pass
+            
             features.append({
                 "type": "Feature",
-                "properties": {
-                    "name": waypoint.name or "Waypoint",
-                    "feature_type": "waypoint"
-                },
+                "properties": properties,
                 "geometry": {
                     "type": "Point",
                     "coordinates": [waypoint.longitude, waypoint.latitude]
@@ -263,6 +283,7 @@ async def append_to_feature_layer(
 def convert_geojson_to_arcgis(geojson_feature: Dict) -> Dict:
     """
     Convert GeoJSON feature to ArcGIS feature format
+    Maps all GeoJSON properties directly to ArcGIS attributes
     """
     geometry = geojson_feature.get("geometry", {})
     properties = geojson_feature.get("properties", {})
@@ -270,9 +291,12 @@ def convert_geojson_to_arcgis(geojson_feature: Dict) -> Dict:
     # Convert GeoJSON geometry to ArcGIS geometry
     arcgis_geometry = convert_geometry_to_arcgis(geometry)
     
+    # Clean up properties - remove feature_type if present (internal use only)
+    attributes = {k: v for k, v in properties.items() if k != "feature_type"}
+    
     return {
         "geometry": arcgis_geometry,
-        "attributes": properties
+        "attributes": attributes
     }
 
 
