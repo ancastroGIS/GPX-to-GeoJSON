@@ -115,22 +115,24 @@ async def convert_gpx_to_geojson(file: UploadFile = File(...)):
 @app.post("/convert-and-append")
 async def convert_and_append_to_feature_layer(
     file: UploadFile = File(...),
-    feature_layer_url: str = None,
+    feature_layer_url: Optional[str] = None,
     feature_layer_token: Optional[str] = None,
     layer_filter: Optional[str] = None
 ):
     """
     Convert GPX to GeoJSON and immediately append to a feature layer via REST API
-    
+
     Args:
         file: GPX file to upload
         feature_layer_url: REST endpoint (e.g., 'https://services.arcgis.com/.../addFeatures')
         feature_layer_token: Optional authentication token
         layer_filter: Optional filter like "type=track" to only append specific features
-    
+
     Returns:
         Conversion and append results
     """
+    if not feature_layer_url:
+        raise HTTPException(status_code=400, detail="feature_layer_url is required")
     try:
         # Step 1: Convert GPX to GeoJSON
         contents = await file.read()
@@ -255,6 +257,9 @@ async def append_to_feature_layer(
         # Convert GeoJSON features to ArcGIS format
         arcgis_features = [convert_geojson_to_arcgis(f) for f in features]
         
+        if not feature_layer_url:
+            return {"status": "error", "message": "feature_layer_url is required"}
+
         # Prepare payload - different format for applyEdits vs addFeatures
         if "/applyEdits" in feature_layer_url:
             # applyEdits expects adds/updates/deletes structure
